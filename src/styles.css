@@ -156,13 +156,20 @@
   h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.015em; }
   :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
 }
-
+/* Visually hide the Lovable badge overlay without disabling it in project settings. */
+#lovable-badge,
+a#lovable-badge,
+[id^="lovable-badge"],
+[class*="lovable-badge"],
+a[href*="lovable.dev/projects"],
+a[href*="lovable.dev?utm"],
+a[href*="lovable.dev/?utm"] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
 @utility container-page { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: 1.25rem; }
 @utility eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-accent); }
 @utility fade-up { animation: fade-up 0.7s ease-out both; }
 @keyframes fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-/* Improve keyboard accessibility across the website */
-:focus-visible {
-  outline: 2px solid #2563eb;
-  outline-offset: 3px;
-}
