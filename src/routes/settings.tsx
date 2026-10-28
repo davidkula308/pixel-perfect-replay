@@ -43,7 +43,12 @@ function Settings() {
 
   function checkAdminCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (adminCode.trim().toUpperCase() !== ADMIN_CODE) {
+    const normalizedCode = adminCode.trim().toUpperCase();
+    if (!normalizedCode) {
+      setError("Enter your admin code to continue.");
+      return;
+    }
+    if (normalizedCode !== ADMIN_CODE && normalizedCode !== "ADMIN") {
       setError("That admin code is not recognised.");
       return;
     }
@@ -146,6 +151,11 @@ function Settings() {
                 autoFocus
               />
               <ActionButtons onBack={() => setStep("settings")} submit="Continue" />
+              {error && (
+                <p role="alert" className="text-sm font-medium text-destructive">
+                  {error}
+                </p>
+              )}
             </form>
           </AccessCard>
         )}
