@@ -18,6 +18,7 @@ import { Route as EmployersRouteImport } from './routes/employers'
 import { Route as OrderRouteImport } from './routes/order'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
@@ -67,6 +68,11 @@ const ResourcesRoute = ResourcesRouteImport.update({
   path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/order': typeof OrderRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
+  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/services/': typeof ServicesIndexRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/order': typeof OrderRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
+  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/services': typeof ServicesIndexRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/order': typeof OrderRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
+  '/settings': typeof SettingsRoute
   '/terms': typeof TermsRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/services/': typeof ServicesIndexRoute
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/order'
     | '/privacy'
     | '/resources'
+    | '/settings'
     | '/terms'
     | '/services/$slug'
     | '/services/'
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
     | '/order'
     | '/privacy'
     | '/resources'
+    | '/settings'
     | '/terms'
     | '/services/$slug'
     | '/services'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/order'
     | '/privacy'
     | '/resources'
+    | '/settings'
     | '/terms'
     | '/services/$slug'
     | '/services/'
@@ -181,6 +193,7 @@ export interface RootRouteChildren {
   OrderRoute: typeof OrderRoute
   PrivacyRoute: typeof PrivacyRoute
   ResourcesRoute: typeof ResourcesRoute
+  SettingsRoute: typeof SettingsRoute
   TermsRoute: typeof TermsRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -285,6 +305,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrderRoute: OrderRoute,
   PrivacyRoute: PrivacyRoute,
   ResourcesRoute: ResourcesRoute,
+  SettingsRoute: SettingsRoute,
   TermsRoute: TermsRoute,
   ServicesSlugRoute: ServicesSlugRoute,
   ServicesIndexRoute: ServicesIndexRoute,
