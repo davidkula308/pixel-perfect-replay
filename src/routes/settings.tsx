@@ -1,10 +1,16 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { ArrowLeft, CheckCircle2, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  sendAdminOtp,
+  validateAdminEntryCode,
+  verifyAdminOtp,
+} from "@/lib/admin-auth.functions";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -18,15 +24,15 @@ export const Route = createFileRoute("/settings")({
 
 type Step = "settings" | "code" | "email" | "verify" | "admin";
 const ADMIN_EMAIL = "pakymacpaps@gmail.com";
-const ADMIN_CODE = "ADMIN2026";
-
 function Settings() {
   const navigate = useNavigate();
+  const validateEntry = useServerFn(validateAdminEntryCode);
+  const sendOtp = useServerFn(sendAdminOtp);
+  const verifyOtp = useServerFn(verifyAdminOtp);
   const [step, setStep] = useState<Step>("settings");
   const [adminCode, setAdminCode] = useState("");
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
-  const [sentCode, setSentCode] = useState("");
   const [error, setError] = useState("");
   const [seconds, setSeconds] = useState(60);
 
@@ -41,19 +47,15 @@ function Settings() {
     setStep("code");
   }
 
-  function checkAdminCode(event: FormEvent<HTMLFormElement>) {
+  async function checkAdminCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const normalizedCode = adminCode.trim().toUpperCase();
-    if (!normalizedCode) {
-      setError("Enter your admin code to continue.");
-      return;
-    }
-    if (normalizedCode !== ADMIN_CODE && normalizedCode !== "ADMIN") {
-      setError("That admin code is not recognised.");
-      return;
-    }
     setError("");
-    setStep("email");
+    try {
+      await validateEntry({ data: { code: adminCode } });
+      setStep("email");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "That admin code is not recognised.");
+    }
   }
 
   function checkEmail(event: FormEvent<HTMLFormElement>) {
@@ -66,23 +68,32 @@ function Settings() {
     setError("");
   }
 
-  function sendVerificationCode() {
-    const nextCode = String(Math.floor(100000 + Math.random() * 900000));
-    setSentCode(nextCode);
-    setVerificationCode("");
-    setSeconds(60);
+  async function sendVerificationCode() {
     setError("");
-    setStep("verify");
+    try {
+      const result = await sendOtp({ data: { email } });
+      if (result.rejected) {
+        setError("Email not for admin");
+        window.setTimeout(() => navigate({ to: "/" }), 1200);
+        return;
+      }
+      setVerificationCode("");
+      setSeconds(60);
+      setStep("verify");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Could not send the verification code.");
+    }
   }
 
-  function verifyCode(event: FormEvent<HTMLFormElement>) {
+  async function verifyCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (verificationCode !== sentCode) {
-      setError("That verification code is incorrect or expired.");
-      return;
-    }
     setError("");
-    setStep("admin");
+    try {
+      await verifyOtp({ data: { email, otp: verificationCode } });
+      setStep("admin");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "That verification code is incorrect or expired.");
+    }
   }
 
   if (step === "admin") {
@@ -214,12 +225,6 @@ function Settings() {
                 <Button type="button" variant="outline" onClick={sendVerificationCode}>
                   Resend code
                 </Button>
-              )}
-              {sentCode && (
-                <p className="rounded-md bg-secondary p-3 text-sm text-muted-foreground">
-                  Preview code for this no-integration build:{" "}
-                  <strong className="text-primary">{sentCode}</strong>
-                </p>
               )}
               {error && (
                 <p role="alert" className="text-sm font-medium text-destructive">
